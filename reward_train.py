@@ -82,7 +82,7 @@ def evaluate(dev_data):
 
 
 def pred(_list):
-    _input, _mask, _segment = padding(_list, 'F')
+    _input, _mask, _segment = padding(_list)
     _score = rm_model(_input, _mask, _segment)
     return _score.numpy().tolist()
 
