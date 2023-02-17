@@ -66,7 +66,7 @@ def evaluate(dev_data):
     acc = 1e-10
     for key in dev_data:
         dev_random = np.random.permutation([0,1,2,3]) #测试数据随机种子
-        dev_input,dev_mask, dev_segment = padding(key, dev_random)
+        dev_input,dev_mask, dev_segment = padding(key)
         dev_input, dev_mask, dev_segment = dev_input[dev_random], dev_mask[dev_random], dev_segment[dev_random]
         dev_score = rm_model(dev_input, dev_mask, dev_segment)
         value =[k[0] for k in  dev_score.numpy().tolist()]
