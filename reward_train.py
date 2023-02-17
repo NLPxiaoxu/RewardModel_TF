@@ -45,7 +45,7 @@ def loss_function(rank_reword):
     return -loss
 
 
-def padding(input):
+def padding(input, seed):
     max_len = max([len(key) for key in input])
     input = [tokenizer.convert_tokens_to_ids(token) for token in input]
     mask = [[1 for _ in k] for k in input]
@@ -53,8 +53,10 @@ def padding(input):
     input_ids = tf.keras.preprocessing.sequence.pad_sequences(input, max_len, padding='post', truncating='post')
     mask_ids = tf.keras.preprocessing.sequence.pad_sequences(mask, max_len, padding='post', truncating='post')
     segment_ids = tf.keras.preprocessing.sequence.pad_sequences(segment, max_len, padding='post', truncating='post')
-    return tf.cast(input_ids,tf.int32),  tf.cast(mask_ids,tf.int32), tf.cast(segment_ids,tf.int32)
-     
+    if len(seed) == 4:
+        return tf.cast(input_ids[seed],tf.int32),  tf.cast(mask_ids[seed],tf.int32), tf.cast(segment_ids[seed],tf.int32)
+    else:
+        return tf.cast(input_ids,tf.int32),  tf.cast(mask_ids,tf.int32), tf.cast(segment_ids,tf.int32)
 print('data loading')
 
 '''
@@ -66,8 +68,7 @@ def evaluate(dev_data):
     acc = 1e-10
     for key in dev_data:
         dev_random = np.random.permutation([0,1,2,3]) #测试数据随机种子
-        dev_input,dev_mask, dev_segment = padding(key)
-        dev_input, dev_mask, dev_segment = dev_input[dev_random], dev_mask[dev_random], dev_segment[dev_random]
+        dev_input,dev_mask, dev_segment = padding(key, dev_random)
         dev_score = rm_model(dev_input, dev_mask, dev_segment)
         value =[k[0] for k in  dev_score.numpy().tolist()]
 
@@ -82,7 +83,7 @@ def evaluate(dev_data):
 
 
 def pred(_list):
-    _input, _mask, _segment = padding(_list)
+    _input, _mask, _segment = padding(_list, 'N')
     _score = rm_model(_input, _mask, _segment)
     return _score.numpy().tolist()
 
@@ -98,7 +99,7 @@ for epoch in range(num_epochs):
     ave_loss = []
     print('Epoch:', epoch + 1)
     for input in inputs:
-        input_ids, mask_ids, segmengt_ids = padding(input)
+        input_ids, mask_ids, segmengt_ids = padding(input, 'N')
         global_step += 1
         with tf.GradientTape() as tape:
             score  = rm_model(input_ids, mask_ids, segmengt_ids)
