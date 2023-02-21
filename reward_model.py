@@ -10,5 +10,4 @@ class Reward_model(tf.keras.Model):
         outputs = self.bert([inputs, mask, segment])[:2]
         pooled_layer = outputs[1]
         score = self.dense(pooled_layer)
-        score = tf.nn.sigmoid(score)
         return score
