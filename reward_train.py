@@ -39,7 +39,7 @@ def loss_function(rank_reword):
     _loss = 0.0
     for i in  range(len(rank_reword)-1):
         for j in  range(i+1, len(rank_reword)):
-            _loss += rank_reword[i] - rank_reword[j]
+            _loss += tf.nn.sigmoid(rank_reword[i] - rank_reword[j])
             add_count += 1
     loss = _loss / add_count
     return -loss
